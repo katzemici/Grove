@@ -24,3 +24,6 @@ Video Refference/
 *.mp4
 *.docx
 *.pdf
+
+# TypeScript build cache
+*.tsbuildinfo
