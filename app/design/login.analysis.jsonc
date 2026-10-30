@@ -1,0 +1,123 @@
+// Login page design analysis (reference: "Snout Scouts" login screenshot).
+// Mapped to Tailwind utilities as requested. The app itself uses plain CSS,
+// so src/auth.css implements these same values with the Glass Garden tokens.
+// Swaps from the reference: Snout Scouts → Grove, girl-with-magnifier art →
+// Ghibli-style cat meadow (src/components/GhibliCatScene.tsx), cyan/coral →
+// Grove sage/ginger.
+{
+  "page": {
+    "element": "div",
+    // Light grey canvas; the card floats centered.
+    "tailwind": "min-h-screen grid place-items-center bg-[#F1F1F3] p-6",
+    "children": ["card"]
+  },
+
+  "card": {
+    "element": "div",
+    // Two columns: illustration is slightly wider than the form (≈ 610px : 490px at 1100px).
+    "tailwind": "grid w-full max-w-6xl md:grid-cols-[1.1fr_1fr] gap-4 rounded-3xl bg-white p-4 shadow-xl",
+    "responsive": {
+      // Below md the hero stacks above the form as a short banner.
+      "base": "grid-cols-1",
+      "md": "grid-cols-[1.1fr_1fr] min-h-[740px]"
+    },
+    "children": ["hero", "formPanel"]
+  },
+
+  "hero": {
+    "element": "div",
+    // Full-bleed illustration clipped to rounded corners; brand overlaid top-left.
+    "tailwind": "relative overflow-hidden rounded-2xl min-h-[240px] md:min-h-[420px]",
+    "children": {
+      "illustration": {
+        "element": "img | svg",
+        // Reference: painterly jungle scene, saturated teal/green/pink.
+        // Grove version: cumulus clouds, camphor tree, ginger cat under a leaf umbrella, soot sprites, daisies.
+        "tailwind": "absolute inset-0 h-full w-full object-cover",
+        "alt": "Illustration: a ginger cat naps on a sunny hill under a leaf"
+      },
+      "brand": {
+        "element": "div",
+        "tailwind": "absolute left-5 top-5 flex items-center gap-2 text-white",
+        "children": {
+          "logoMark": { "tailwind": "size-10 grid place-items-center rounded-xl bg-gradient-to-br from-lime-300 to-[#8F9B6D]" },
+          // Reference wordmark is two stacked lines in a rounded geometric sans.
+          "wordmark": { "text": "Grove", "tailwind": "font-[Fredoka] text-2xl font-medium drop-shadow" }
+        }
+      }
+    }
+  },
+
+  "formPanel": {
+    "element": "section",
+    // Decorative flowers bleed off the right and bottom edges, so the panel clips overflow.
+    "tailwind": "relative flex items-center justify-center overflow-hidden px-6 py-8",
+    "decor": [
+      // Reference: pink bellflowers + leaves. Grove: leaf sprigs + daisies.
+      { "position": "top-right", "tailwind": "pointer-events-none absolute right-0 top-0 w-28" },
+      { "position": "bottom-left", "tailwind": "pointer-events-none absolute bottom-0 left-0 w-28" },
+      { "position": "bottom-right", "tailwind": "pointer-events-none absolute bottom-0 right-0 w-24" }
+    ],
+    "children": {
+      "wrap": {
+        "tailwind": "relative z-10 w-full max-w-[400px]",
+        "children": {
+          "title": { "element": "h1", "text": "Login", "tailwind": "text-center font-[Fredoka] text-4xl md:text-5xl font-medium" },
+          // Not in the reference; added so the four modes (login/sign up/forgot/new password) explain themselves.
+          "subtitle": { "element": "p", "tailwind": "mt-1.5 mb-6 text-center text-sm text-[#3F4A2C]/80" },
+
+          "form": {
+            "element": "form",
+            "tailwind": "flex flex-col gap-4",
+            "children": {
+              "emailField": {
+                "label": { "text": "Email", "tailwind": "pl-1 font-[Fredoka] font-medium" },
+                // Trailing envelope icon sits inside the input's right padding.
+                "input": { "type": "email", "tailwind": "h-12 w-full rounded-xl border border-[#65744D]/30 bg-white pl-4 pr-12 focus:border-[#8F9B6D] focus:ring-4 focus:ring-lime-300/30" },
+                "icon": { "name": "mail", "tailwind": "absolute right-3 top-1/2 -translate-y-1/2 text-[#8F9B6D]" }
+              },
+              "passwordField": {
+                "label": { "text": "Password", "tailwind": "pl-1 font-[Fredoka] font-medium" },
+                "input": { "type": "password", "tailwind": "h-12 w-full rounded-xl border border-[#65744D]/30 bg-white pl-4 pr-12" },
+                // Eye-off icon is an interactive toggle (reveals the password).
+                "toggle": { "element": "button", "aria": "Show password / Hide password", "tailwind": "absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1" }
+              },
+              "forgot": { "element": "button", "text": "Forgot Password?", "tailwind": "self-start pl-1 text-sm font-semibold text-[#C8743A] hover:underline" },
+              "submit": {
+                "element": "button",
+                "text": "Log In",
+                // Reference: flat cyan #3EC6D6. Grove: sage gradient with soft shadow.
+                "tailwind": "h-12 w-full rounded-xl bg-gradient-to-b from-[#8F9B6D] to-[#65744D] font-[Fredoka] text-lg text-white shadow-lg hover:from-[#65744D] hover:to-[#3F4A2C]"
+              }
+            }
+          },
+
+          "divider": {
+            // Hairlines either side of "Or".
+            "tailwind": "mt-6 mb-2 flex items-center gap-3 text-xs text-[#65744D]/60 before:h-px before:flex-1 before:bg-current/20 after:h-px after:flex-1 after:bg-current/20",
+            "text": "Or"
+          },
+          // Reference reads "Already have an account? Sign in" (a copy slip on a login page); Grove offers sign-up here.
+          "switch": { "text": "Don't have an account? Sign up", "tailwind": "mb-3 text-center text-[13px] text-[#3F4A2C]/80", "link": "font-bold underline underline-offset-2" },
+
+          "socials": {
+            "tailwind": "flex flex-col gap-2.5",
+            "button": "h-11 flex items-center justify-center gap-2.5 rounded-xl border border-[#65744D]/20 bg-white text-sm font-semibold hover:bg-[#FBFAF4]",
+            "items": [
+              { "icon": "Google G (4-color)", "text": "Continue with Google" },
+              { "icon": "Apple (monochrome)", "text": "Continue with Apple" },
+              { "icon": "Facebook (#1877F2)", "text": "Continue with Facebook" }
+            ],
+            // Social sign-in needs Supabase providers; disabled with a note in local mode.
+            "localMode": "disabled:opacity-55 disabled:cursor-not-allowed"
+          }
+        }
+      }
+    }
+  },
+
+  "motion": {
+    // Subtle: card rises in, clouds drift, seeds float, cat breathes. All off under prefers-reduced-motion.
+    "tailwind": "motion-safe:animate-[rise_0.6s] motion-reduce:animate-none"
+  }
+}

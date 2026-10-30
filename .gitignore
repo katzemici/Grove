@@ -1,0 +1,26 @@
+# Dependencies & build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+
+# Env files (contain your Supabase keys) — never commit
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editor / OS cruft
+.DS_Store
+*.log
+.devserver.log
+.devserver.err.log
+
+# Local backups
+.backup-journal/
+
+# Large local reference material (keep out of the repo)
+Video Refference/
+*.mp4
+*.docx
+*.pdf

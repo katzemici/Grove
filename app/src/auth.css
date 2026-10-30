@@ -1,0 +1,671 @@
+/* ============================================================================
+   Login, profile and picture controls.
+   Layout follows design/login.analysis.jsonc (Tailwind mapping), translated
+   to plain CSS with the Glass Garden tokens from styles.css.
+   ============================================================================ */
+
+/* ---------- Page + card (analysis: min-h-screen grid place-items-center p-6) */
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+}
+
+/* analysis: grid md:grid-cols-[1.1fr_1fr] max-w-6xl rounded-3xl bg-white p-4 shadow-xl */
+.auth-card {
+  width: min(1120px, 100%);
+  min-height: min(740px, calc(100vh - 48px));
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-lg);
+  animation: auth-rise 0.6s var(--ease) both;
+}
+
+/* ---------- Illustration (analysis: relative overflow-hidden rounded-2xl) */
+.auth-card {
+  grid-template-areas: 'hero panel';
+}
+/* Register mirrors the card: form on the left, the suit cat on the right. */
+.auth-card.is-register {
+  grid-template-columns: 1fr 1.1fr;
+  grid-template-areas: 'panel hero';
+}
+.auth-hero {
+  grid-area: hero;
+  view-transition-name: auth-hero;
+}
+.auth-panel {
+  grid-area: panel;
+  view-transition-name: auth-panel;
+}
+
+/* Login ⇄ register swap (View Transitions API). The halves glide past each
+   other with a little overshoot while the picture squashes like a water drop. */
+::view-transition-group(auth-hero),
+::view-transition-group(auth-panel) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.68, -0.2, 0.27, 1.25);
+}
+::view-transition-group(auth-hero) {
+  z-index: 2;
+}
+::view-transition-image-pair(auth-hero) {
+  overflow: hidden;
+  animation: auth-goo 0.8s cubic-bezier(0.45, 0, 0.25, 1);
+}
+::view-transition-old(auth-panel) {
+  animation: auth-panel-out 0.35s ease-in both;
+}
+::view-transition-new(auth-panel) {
+  animation: auth-panel-in 0.5s 0.25s ease-out both;
+}
+::view-transition-old(auth-hero),
+::view-transition-new(auth-hero) {
+  /* The picture is the same element on both sides; keep it solid while it moves. */
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(auth-hero) {
+  display: none;
+}
+@keyframes auth-goo {
+  0% {
+    transform: none;
+    border-radius: 22px;
+  }
+  45% {
+    transform: scale(0.9, 1.05);
+    border-radius: 42% 58% 38% 62% / 18% 22% 20% 16%;
+  }
+  75% {
+    transform: scale(1.03, 0.98);
+  }
+  100% {
+    transform: none;
+    border-radius: 22px;
+  }
+}
+@keyframes auth-panel-out {
+  to {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(0.96);
+  }
+}
+@keyframes auth-panel-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(1.03);
+  }
+}
+
+.auth-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  min-height: 420px;
+  background: #9ccbea;
+}
+.auth-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Two stacked scenes; the register one is revealed through a liquid clip path. */
+.auth-scene-layer {
+  position: absolute;
+  inset: 0;
+}
+.auth-sheen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.auth-sheen path {
+  fill: none;
+  stroke: rgba(255, 253, 240, 0.9);
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
+}
+.gs-bubble {
+  transform-origin: 440px 410px;
+  animation: auth-bubble 3.2s var(--spring) infinite;
+}
+
+/* Press drops on the auth buttons (from lib/liquid). */
+.auth-submit.liquid,
+.auth-social.liquid {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.auth-submit .liquid-drop {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 45%, rgba(255, 255, 255, 0) 70%);
+}
+
+/* The form melts in when switching between login and register (wrap is keyed by mode). */
+.auth-form-wrap > * {
+  animation: auth-melt-in 0.7s var(--spring) both;
+}
+.auth-form-wrap > :nth-child(2) {
+  animation-delay: 0.04s;
+}
+.auth-form-wrap > :nth-child(3) {
+  animation-delay: 0.08s;
+}
+.auth-form-wrap > :nth-child(n + 4) {
+  animation-delay: 0.12s;
+}
+.auth-brand {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+.auth-brand .logo {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  /* Flat pastel tile, sage line-art mark (the Logo strokes with var(--cream)). */
+  --cream: var(--sage-700);
+  background: #eef4dc;
+  border: 1.5px solid #fff;
+}
+.auth-brand-text {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 10px rgba(30, 60, 90, 0.35);
+}
+
+/* Gentle life in the scene. */
+.auth-scene .cloud {
+  animation: auth-drift 18s ease-in-out infinite alternate;
+}
+.auth-scene .cloud-b {
+  animation-duration: 24s;
+}
+.auth-scene .cloud-c {
+  animation-duration: 30s;
+}
+.auth-scene .seed {
+  animation: auth-seed 6s ease-in-out infinite;
+}
+.auth-scene .gh-cat {
+  transform-origin: 300px 700px;
+  animation: auth-breathe 4.5s ease-in-out infinite;
+}
+
+/* ---------- Form panel (analysis: relative flex flex-col justify-center px-10) */
+.auth-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6) var(--sp-5);
+}
+.auth-form-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(400px, 100%);
+}
+.auth-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4vw, 2.75rem);
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+.auth-sub {
+  margin: 6px 0 var(--sp-5);
+  text-align: center;
+  color: var(--text-2);
+  font-size: 0.92rem;
+}
+
+.auth-decor {
+  position: absolute;
+  pointer-events: none;
+}
+.auth-decor.tr {
+  top: 0;
+  right: 0;
+  width: 110px;
+}
+.auth-decor.bl {
+  bottom: 0;
+  left: 0;
+  width: 110px;
+}
+.auth-decor.br {
+  bottom: 0;
+  right: 0;
+  width: 90px;
+}
+
+/* ---------- Fields (analysis: space-y-5, label font-medium, input h-12 rounded-lg border) */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-field label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1rem;
+  padding-left: 4px;
+}
+.auth-input-wrap {
+  position: relative;
+}
+.auth-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px 0 16px;
+  border-radius: var(--r-control);
+  border: 1px solid rgba(101, 116, 77, 0.28);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.98rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.auth-input::placeholder {
+  color: var(--text-3);
+}
+.auth-input:focus {
+  outline: none;
+  border-color: var(--sage-500);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.auth-input.invalid {
+  border-color: var(--negative);
+}
+.auth-trailing {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--sage-500);
+  pointer-events: none;
+}
+.auth-eye {
+  pointer-events: auto;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+}
+.auth-eye:hover {
+  color: var(--sage-700);
+}
+
+.auth-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.auth-link.strong {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* analysis: text-sm font-medium text-[#E0785A] (coral → Grove ginger) */
+.auth-forgot {
+  align-self: flex-start;
+  margin-top: -4px;
+  padding-left: 4px;
+  color: #c8743a;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.auth-forgot:hover {
+  text-decoration: underline;
+}
+
+.auth-message {
+  padding: 10px 14px;
+  border-radius: var(--r-control);
+  font-size: 0.86rem;
+}
+.auth-message.error {
+  background: rgba(232, 164, 92, 0.16);
+  color: #8a4a1c;
+}
+.auth-message.ok {
+  background: rgba(111, 175, 91, 0.16);
+  color: #2f6a24;
+}
+
+/* analysis: h-12 w-full rounded-lg bg-[#3EC6D6] text-white text-lg (cyan → Grove sage) */
+/* Pastel and flat: no gradient, no glow. A soft bottom lip gives it a pressable feel. */
+.auth-submit {
+  height: 48px;
+  border: 1.5px solid #bcd08f;
+  border-radius: var(--r-control);
+  background: #d4e4ad;
+  color: var(--sage-900);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 -3px 0 rgba(101, 116, 77, 0.12);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+}
+.auth-submit:hover:not(:disabled) {
+  background: #c8dc9a;
+  border-color: #adc47c;
+}
+.auth-submit:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* analysis: flex items-center gap-3 text-xs text-gray-500 with hairlines */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: var(--sp-5) 0 var(--sp-2);
+  color: var(--text-3);
+  font-size: 0.78rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--separator);
+}
+.auth-switch {
+  margin: 0 0 var(--sp-3);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+
+/* analysis: space-y-3, h-11 rounded-lg border bg-white text-sm font-medium */
+.auth-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.auth-social {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: var(--r-control);
+  border: 1px solid rgba(101, 116, 77, 0.22);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.auth-social:hover:not(:disabled) {
+  background: #fbfaf4;
+  border-color: var(--sage-300);
+}
+.auth-social:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.auth-note {
+  margin: var(--sp-3) 0 0;
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--text-3);
+}
+
+.auth-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Responsive (analysis: md breakpoint stacks the hero above the form) */
+@media (max-width: 860px) {
+  .auth-page {
+    padding: var(--sp-3);
+  }
+  .auth-card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .auth-card,
+  .auth-card.is-register {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'hero' 'panel';
+  }
+  .auth-hero {
+    min-height: 240px;
+  }
+  .auth-panel {
+    padding: var(--sp-5) var(--sp-3);
+  }
+}
+
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes auth-drift {
+  to {
+    transform: translateX(18px);
+  }
+}
+@keyframes auth-seed {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(8px, -14px);
+    opacity: 1;
+  }
+}
+@keyframes auth-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.012, 0.992);
+  }
+}
+
+@keyframes auth-melt-in {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(14px) scale(0.97, 1.04);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(-2px) scale(1.015, 0.985);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes auth-bubble {
+  0%,
+  70%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  80% {
+    transform: scale(1.06) rotate(-2deg);
+  }
+  90% {
+    transform: scale(0.98) rotate(1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .auth-form-wrap > *,
+  .gs-bubble,
+  .auth-scene .cloud,
+  .auth-scene .seed,
+  .auth-scene .gh-cat {
+    animation: none;
+  }
+}
+
+/* Sidebar mark matches the pastel login logo. */
+.sidebar .brand .logo {
+  --cream: var(--sage-700);
+  background: #eef4dc;
+  border: 1.5px solid #fff;
+  box-shadow: none;
+}
+
+/* ============================ Sidebar profile button ===================== */
+button.side-foot {
+  appearance: none;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+button.side-foot:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+.side-foot .who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-foot .side-text {
+  min-width: 0;
+}
+
+/* ============================ Profile dialog ============================ */
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgba(63, 74, 44, 0.16);
+}
+.profile-email {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  word-break: break-all;
+}
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.profile-section {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--separator);
+}
+.profile-section h3 {
+  font-size: 0.95rem;
+  margin-bottom: var(--sp-2);
+}
+.profile-insight {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  display: block;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ============================ Insight card picture button =============== */
+.insight-card .insight-edit {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+.insight-card .insight-edit:hover,
+.insight-card .insight-edit:focus-visible {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.4);
+}
+.insight-card .insight-edit:disabled {
+  cursor: progress;
+}
